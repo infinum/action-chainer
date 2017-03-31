@@ -1,0 +1,22 @@
+{
+  "name": "api-chainer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Darko Kukovec <darko@kukovec.eu>",
+  "license": "MIT",
+  "scripts": {
+    "watch": "nodemon -i node_modules -x 'mocha test'",
+    "test": "nyc mocha test",
+    "precommit": "npm run test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "husky": "^0.13.3",
+    "isomorphic-fetch": "^2.2.1",
+    "mocha": "^3.2.0",
+    "nock": "^9.0.11",
+    "nodemon": "^1.11.0",
+    "nyc": "^10.2.0"
+  }
+}
