@@ -75,8 +75,8 @@ describe('api-chainer', () => {
         };
         return state;
       },
-      requestTransformer(url, head, state) {
-        return state;
+      argsTransformer([url, head], state) {
+        return [url, state];
       }
     });
 
