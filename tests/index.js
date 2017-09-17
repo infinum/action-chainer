@@ -1,7 +1,7 @@
 const {expect} = require('chai');
 const mockApi = require('./helpers');
 const originalFetch = require('isomorphic-fetch');
-const {init, fetch} = require('./index');
+const {init, fetch} = require('../index');
 
 describe('api-chainer', () => {
   it('should make a single API call', () => {

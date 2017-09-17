@@ -2,12 +2,17 @@
   "name": "api-chainer",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Darko Kukovec <darko@kukovec.eu>",
+  "author": "Javascript Team <hello@infinum.co>",
   "license": "MIT",
   "scripts": {
-    "watch": "nodemon -i node_modules -x 'mocha test'",
-    "test": "nyc mocha test",
+    "watch": "nodemon -i node_modules -x 'mocha tests'",
+    "test": "nyc mocha tests",
     "precommit": "npm run test"
+  },
+  "nyc": {
+    "exclude": [
+      "tests/*"
+    ]
   },
   "dependencies": {},
   "devDependencies": {
