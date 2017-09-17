@@ -1,1 +1,3 @@
 tests/*
+.codeclimate.yml
+.travis.yml
