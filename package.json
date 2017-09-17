@@ -8,11 +8,15 @@
     "watch": "nodemon -i node_modules -x 'mocha tests'",
     "test": "nyc mocha tests && npm run lint",
     "precommit": "npm run test",
-    "lint": "eslint ."
+    "lint": "eslint index.js tests/*"
   },
   "nyc": {
     "exclude": [
       "tests/*"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
     ]
   },
   "dependencies": {},
