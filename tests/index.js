@@ -1,7 +1,11 @@
 const {expect} = require('chai');
 const mockApi = require('./helpers');
 const originalFetch = require('isomorphic-fetch');
-const {init, fetch} = require('../index');
+const Chainer = require('../index');
+
+const fetchInit = (chain) => function(input, init) {
+  return chain(originalFetch, [input, init]);
+};
 
 describe('api-chainer', () => {
   it('should make a single API call', () => {
@@ -9,7 +13,8 @@ describe('api-chainer', () => {
       response: () => ({success: true})
     });
 
-    init({fetch: originalFetch});
+    const chainer = new Chainer();
+    const fetch = fetchInit(chainer.chain);
 
     return fetch('http://example.com')
       .then((res) => res.json())
@@ -27,7 +32,8 @@ describe('api-chainer', () => {
       response: () => ({success: false})
     });
 
-    init({fetch: originalFetch});
+    const chainer = new Chainer();
+    const fetch = fetchInit(chainer.chain);
 
     return fetch('http://example.com')
       .then((res) => res.json())
@@ -65,8 +71,8 @@ describe('api-chainer', () => {
       response: () => ({success: 3})
     });
 
-    init({
-      fetch: originalFetch,
+
+    const chainer = new Chainer({
       reducer(res) {
         const state = {
           headers: {
@@ -79,6 +85,7 @@ describe('api-chainer', () => {
         return [url, state];
       }
     });
+    const fetch = fetchInit(chainer.chain);
 
     const requests = [
       fetch('http://example.com/1/1'),
@@ -87,7 +94,7 @@ describe('api-chainer', () => {
     ];
 
     return Promise.all(requests)
-      .then((ress) => Promise.all(ress.map((res) => res.json())))
+      .then((res) => Promise.all(res.map((res) => res.json())))
       .then((data) => {
         expect(data[0].success).to.equal(1);
         expect(data[1].success).to.equal(2);
