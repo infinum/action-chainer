@@ -1,58 +1,64 @@
-const {expect} = require('chai');
-const mockApi = require('./helpers');
-const originalFetch = require('isomorphic-fetch');
-const Chainer = require('../index');
+/* global describe, it */
 
-const fetchInit = (chain) => function(input, init) {
-  return chain(originalFetch, [input, init]);
+var chai = require('chai');
+var mockApi = require('./helpers');
+var originalFetch = require('isomorphic-fetch');
+var Chainer = require('../index');
+
+var expect = chai.expect;
+
+var fetchInit = function(chain) {
+  return function(input, init) {
+    return chain(originalFetch, [input, init]);
+  };
 };
 
-describe('api-chainer', () => {
-  it('should make a single API call', () => {
-    mockApi({
-      response: () => ({success: true})
-    });
+describe('api-chainer', function() {
+  it('should make a single API call', function() {
+    mockApi({response: {success: true}});
 
-    const chainer = new Chainer();
-    const fetch = fetchInit(chainer.chain);
+    var chainer = new Chainer();
+    var fetch = fetchInit(chainer.chain);
 
     return fetch('http://example.com')
-      .then((res) => res.json())
-      .then((data) => {
+      .then(function(res) {
+        return res.json();
+      })
+      .then(function(data) {
         expect(data.success).to.equal(true);
       });
   });
 
-  it('should be able to make multiple API calls', () => {
-    mockApi({
-      response: () => ({success: true})
-    });
+  it('should be able to make multiple API calls', function() {
+    mockApi({response: {success: true}});
+    mockApi({response: {success: false}});
 
-    mockApi({
-      response: () => ({success: false})
-    });
+    var chainer = new Chainer();
+    var fetch = fetchInit(chainer.chain);
 
-    const chainer = new Chainer();
-    const fetch = fetchInit(chainer.chain);
-
-    return fetch('http://example.com')
-      .then((res) => res.json())
-      .then((data) => {
+    var first = fetch('http://example.com')
+      .then(function(res) {
+        return res.json();
+      })
+      .then(function(data) {
         expect(data.success).to.equal(true);
+      });
+
+    var second = fetch('http://example.com')
+      .then(function(res) {
+        return res.json();
       })
-      .then(() => {
-        return fetch('http://example.com');
-      })
-      .then((res) => res.json())
-      .then((data) => {
+      .then(function(data) {
         expect(data.success).to.equal(false);
       });
+
+    return Promise.all([first, second]);
   });
 
-  it('should be able to make sequential calls with header data', () => {
+  it('should be able to make sequential calls with header data', function() {
     mockApi({
       url: '/1/1',
-      response: () => ({success: 1}),
+      response: {success: 1},
       headers: {'x-value': '1'},
       delay: 10
     });
@@ -60,7 +66,7 @@ describe('api-chainer', () => {
     mockApi({
       url: '/1/2',
       reqheaders: {'x-value': '1'},
-      response: () => ({success: 2}),
+      response: {success: 2},
       headers: {'x-value': '2'},
       delay: 5
     });
@@ -68,34 +74,37 @@ describe('api-chainer', () => {
     mockApi({
       url: '/1/3',
       reqheaders: {'x-value': '2'},
-      response: () => ({success: 3})
+      response: {success: 3}
     });
 
-
-    const chainer = new Chainer({
-      reducer(res) {
-        const state = {
+    var chainer = new Chainer({
+      reducer: function(res) {
+        var state = {
           headers: {
             'x-value': res ? res.headers.get('x-value') : null
           }
         };
         return state;
       },
-      argsTransformer([url, head], state) {
-        return [url, state];
+      argsTransformer: function(args, state) {
+        return [args[0], state];
       }
     });
-    const fetch = fetchInit(chainer.chain);
+    var fetch = fetchInit(chainer.chain);
 
-    const requests = [
+    var requests = [
       fetch('http://example.com/1/1'),
       fetch('http://example.com/1/2'),
       fetch('http://example.com/1/3')
     ];
 
     return Promise.all(requests)
-      .then((res) => Promise.all(res.map((res) => res.json())))
-      .then((data) => {
+      .then(function(res) {
+        return Promise.all(res.map(function(resp) {
+          return resp.json();
+        }));
+      })
+      .then(function(data) {
         expect(data[0].success).to.equal(1);
         expect(data[1].success).to.equal(2);
         expect(data[2].success).to.equal(3);
