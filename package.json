@@ -1,8 +1,8 @@
 {
-  "name": "api-chainer",
+  "name": "action-chainer",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Javascript Team <hello@infinum.co>",
+  "author": "JavaScript Team <hello@infinum.co>",
   "license": "MIT",
   "scripts": {
     "watch": "nodemon -i node_modules -x 'mocha tests'",
